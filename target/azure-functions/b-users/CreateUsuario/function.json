@@ -1,6 +1,6 @@
 {
   "scriptFile" : "../b-users-1.0-SNAPSHOT.jar",
-  "entryPoint" : "com.function.UsuarioPostFunction.createUsuario",
+  "entryPoint" : "com.function.usuario.UsuarioPostFunction.createUsuario",
   "bindings" : [ {
     "type" : "httpTrigger",
     "direction" : "in",

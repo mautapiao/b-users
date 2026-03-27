@@ -1,11 +1,11 @@
 {
   "scriptFile" : "../b-users-1.0-SNAPSHOT.jar",
-  "entryPoint" : "com.function.usuario.UsuarioGetFunction.getUsuarios",
+  "entryPoint" : "com.function.cliente.ClienteGetFunction.getLibroById",
   "bindings" : [ {
     "type" : "httpTrigger",
     "direction" : "in",
     "name" : "req",
-    "route" : "usuarios",
+    "route" : "Clientes/{id:int}",
     "methods" : [ "GET" ],
     "authLevel" : "ANONYMOUS"
   }, {

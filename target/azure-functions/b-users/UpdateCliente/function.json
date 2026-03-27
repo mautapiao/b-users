@@ -1,12 +1,12 @@
 {
   "scriptFile" : "../b-users-1.0-SNAPSHOT.jar",
-  "entryPoint" : "com.function.usuario.UsuarioGetFunction.getUsuarios",
+  "entryPoint" : "com.function.cliente.ClientePutFunction.updateCliente",
   "bindings" : [ {
     "type" : "httpTrigger",
     "direction" : "in",
     "name" : "req",
-    "route" : "usuarios",
-    "methods" : [ "GET" ],
+    "route" : "clientes/{id:int}",
+    "methods" : [ "PUT" ],
     "authLevel" : "ANONYMOUS"
   }, {
     "type" : "http",

@@ -1,12 +1,12 @@
 {
   "scriptFile" : "../b-users-1.0-SNAPSHOT.jar",
-  "entryPoint" : "com.function.usuario.UsuarioGetFunction.getUsuarios",
+  "entryPoint" : "com.function.cliente.ClienteDeleteFunction.deleteCliente",
   "bindings" : [ {
     "type" : "httpTrigger",
     "direction" : "in",
     "name" : "req",
-    "route" : "usuarios",
-    "methods" : [ "GET" ],
+    "route" : "clientes/{id:int}",
+    "methods" : [ "DELETE" ],
     "authLevel" : "ANONYMOUS"
   }, {
     "type" : "http",

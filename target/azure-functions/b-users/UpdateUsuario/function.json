@@ -1,6 +1,6 @@
 {
   "scriptFile" : "../b-users-1.0-SNAPSHOT.jar",
-  "entryPoint" : "com.function.UsuarioPutFunction.updateUsuario",
+  "entryPoint" : "com.function.usuario.UsuarioPutFunction.updateUsuario",
   "bindings" : [ {
     "type" : "httpTrigger",
     "direction" : "in",

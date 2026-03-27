@@ -1,6 +1,6 @@
 {
   "scriptFile" : "../b-users-1.0-SNAPSHOT.jar",
-  "entryPoint" : "com.function.UsuarioDeleteFunction.deleteUsuario",
+  "entryPoint" : "com.function.usuario.UsuarioDeleteFunction.deleteUsuario",
   "bindings" : [ {
     "type" : "httpTrigger",
     "direction" : "in",

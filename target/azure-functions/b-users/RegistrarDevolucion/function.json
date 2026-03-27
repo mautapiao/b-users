@@ -1,12 +1,12 @@
 {
   "scriptFile" : "../b-users-1.0-SNAPSHOT.jar",
-  "entryPoint" : "com.function.usuario.UsuarioGetFunction.getUsuarios",
+  "entryPoint" : "com.function.prestamo.PrestamoFunction.registrarDevolucion",
   "bindings" : [ {
     "type" : "httpTrigger",
     "direction" : "in",
     "name" : "req",
-    "route" : "usuarios",
-    "methods" : [ "GET" ],
+    "route" : "prestamos/{id:int}/devolucion",
+    "methods" : [ "PATCH" ],
     "authLevel" : "ANONYMOUS"
   }, {
     "type" : "http",
