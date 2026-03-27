@@ -1,0 +1,16 @@
+{
+  "scriptFile" : "../b-users-1.0-SNAPSHOT.jar",
+  "entryPoint" : "com.function.UsuarioGetFunction.getUsuarioById",
+  "bindings" : [ {
+    "type" : "httpTrigger",
+    "direction" : "in",
+    "name" : "req",
+    "route" : "usuarios/{id:int}",
+    "methods" : [ "GET" ],
+    "authLevel" : "ANONYMOUS"
+  }, {
+    "type" : "http",
+    "direction" : "out",
+    "name" : "$return"
+  } ]
+}
