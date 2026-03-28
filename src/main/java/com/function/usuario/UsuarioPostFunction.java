@@ -17,23 +17,18 @@ import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 public class UsuarioPostFunction {
-  
-   
-@FunctionName("CreateUsuario")
+
+    @FunctionName("CreateUsuario")
     public HttpResponseMessage createUsuario(
-            @HttpTrigger(
-                name = "req",
-                methods = {HttpMethod.POST},
-                route = "usuarios",
-                authLevel = AuthorizationLevel.ANONYMOUS)
-                HttpRequestMessage<Optional<String>> request,
+            @HttpTrigger(name = "req", methods = {
+                    HttpMethod.POST }, route = "usuarios", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
 
-        //  informo que voy a crear un nuevo usuario
+        // informo que voy a crear un nuevo usuario
         context.getLogger().info("Creando un nuevo usuario");
 
         try {
-            //  obtengo el body de la petición
+            // obtengo el body de la petición
             String body = request.getBody().orElse("");
 
             // valido si el body viene vacío
@@ -41,18 +36,18 @@ public class UsuarioPostFunction {
                 // preparo un JSON indicando que faltan datos
                 String errorJson = "{\"error\":\"El body de la petición está vacío\"}";
 
-                //  devuelvo una respuesta 400 porque faltó enviar información
+                // devuelvo una respuesta 400 porque faltó enviar información
                 return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
                         .header("Content-Type", "application/json")
                         .body(errorJson)
                         .build();
             }
 
-            //  preparo Gson para convertir el JSON recibido a un objeto Usuario
+            // preparo Gson para convertir el JSON recibido a un objeto Usuario
             Gson gson = new Gson();
             Usuario usuario = gson.fromJson(body, Usuario.class);
 
-            //  valido si el objeto no se pudo construir correctamente
+            // valido si el objeto no se pudo construir correctamente
             if (usuario == null) {
                 String errorJson = "{\"error\":\"No se pudo leer el usuario enviado\"}";
 
@@ -62,7 +57,7 @@ public class UsuarioPostFunction {
                         .build();
             }
 
-            //  valido que el nombre venga informado
+            // valido que el nombre venga informado
             if (usuario.getNombre() == null || usuario.getNombre().isBlank()) {
                 String errorJson = "{\"error\":\"El nombre es obligatorio\"}";
 
@@ -88,7 +83,7 @@ public class UsuarioPostFunction {
             // inserto el usuario en la base de datos
             Usuario usuarioCreado = repository.insertarUsuario(usuario);
 
-            //  convierto el usuario creado a JSON
+            // convierto el usuario creado a JSON
             String json = gson.toJson(usuarioCreado);
 
             // Aquí devuelvo una respuesta 201 porque el usuario fue creado correctamente
@@ -98,7 +93,7 @@ public class UsuarioPostFunction {
                     .build();
 
         } catch (JsonSyntaxException e) {
-            //  controlo el caso en que el JSON esté mal escrito
+            // controlo el caso en que el JSON esté mal escrito
             context.getLogger().severe("JSON inválido: " + e.getMessage());
 
             String errorJson = "{\"error\":\"El JSON enviado no es válido\"}";
@@ -109,7 +104,7 @@ public class UsuarioPostFunction {
                     .build();
 
         } catch (SQLException e) {
-            //  controlo errores de base de datos como email duplicado
+            // controlo errores de base de datos como email duplicado
             context.getLogger().severe("Error SQL al crear usuario: " + e.getMessage());
 
             String errorJson = "{\"error\":\"Error al guardar el usuario\",\"detalle\":\""

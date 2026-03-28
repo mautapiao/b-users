@@ -1,4 +1,5 @@
 package com.function.prestamo;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -18,173 +19,169 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 public class PrestamoFunction {
 
-    // GET /prestamos todos los préstamos con detalle
-    @FunctionName("GetPrestamos")
-    public HttpResponseMessage getPrestamos(
-            @HttpTrigger(name = "req", methods = {HttpMethod.GET},
-                    route = "prestamos", authLevel = AuthorizationLevel.ANONYMOUS)
-            HttpRequestMessage<Optional<String>> request,
-            final ExecutionContext context) {
+        // GET /prestamos todos los préstamos con detalle
+        @FunctionName("GetPrestamos")
+        public HttpResponseMessage getPrestamos(
+                        @HttpTrigger(name = "req", methods = {
+                                        HttpMethod.GET }, route = "prestamos", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+                        final ExecutionContext context) {
 
-        context.getLogger().info("Listando todos los préstamos...");
-        try {
-            PrestamoRepository repository = new PrestamoRepository();
-            List<PrestamoDetalle> prestamos = repository.listarPrestamos();
-            String json = new Gson().toJson(prestamos);
-            return request.createResponseBuilder(HttpStatus.OK)
-                    .header("Content-Type", "application/json")
-                    .body(json).build();
-        } catch (Exception e) {
-            context.getLogger().severe("Error al listar préstamos: " + e.getMessage());
-            String errorJson = "{\"error\":\"Error al listar préstamos\",\"detalle\":\""
-                    + e.getMessage().replace("\"", "'") + "\"}";
-            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header("Content-Type", "application/json")
-                    .body(errorJson).build();
+                context.getLogger().info("Listando todos los préstamos...");
+                try {
+                        PrestamoRepository repository = new PrestamoRepository();
+                        List<PrestamoDetalle> prestamos = repository.listarPrestamos();
+                        String json = new Gson().toJson(prestamos);
+                        return request.createResponseBuilder(HttpStatus.OK)
+                                        .header("Content-Type", "application/json")
+                                        .body(json).build();
+                } catch (Exception e) {
+                        context.getLogger().severe("Error al listar préstamos: " + e.getMessage());
+                        String errorJson = "{\"error\":\"Error al listar préstamos\",\"detalle\":\""
+                                        + e.getMessage().replace("\"", "'") + "\"}";
+                        return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .header("Content-Type", "application/json")
+                                        .body(errorJson).build();
+                }
         }
-    }
-    // GET /prestamos/pendientes solo los que tienen FECHA_ENTREGA null
-    @FunctionName("GetPrestamosPendientes")
-    public HttpResponseMessage getPrestamosPendientes(
-            @HttpTrigger(name = "req", methods = {HttpMethod.GET},
-                    route = "prestamos/pendientes", authLevel = AuthorizationLevel.ANONYMOUS)
-            HttpRequestMessage<Optional<String>> request,
-            final ExecutionContext context) {
 
-        context.getLogger().info("Listando préstamos pendientes...");
-        try {
-            PrestamoRepository repository = new PrestamoRepository();
-            List<PrestamoDetalle> pendientes = repository.listarPrestamosPendientes();
-            String json = new Gson().toJson(pendientes);
-            return request.createResponseBuilder(HttpStatus.OK)
-                    .header("Content-Type", "application/json")
-                    .body(json).build();
-        } catch (Exception e) {
-            context.getLogger().severe("Error al listar pendientes: " + e.getMessage());
-            String errorJson = "{\"error\":\"Error al listar pendientes\",\"detalle\":\""
-                    + e.getMessage().replace("\"", "'") + "\"}";
-            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header("Content-Type", "application/json")
-                    .body(errorJson).build();
+        // GET /prestamos/pendientes solo los que tienen FECHA_ENTREGA null
+        @FunctionName("GetPrestamosPendientes")
+        public HttpResponseMessage getPrestamosPendientes(
+                        @HttpTrigger(name = "req", methods = {
+                                        HttpMethod.GET }, route = "prestamos/pendientes", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+                        final ExecutionContext context) {
+
+                context.getLogger().info("Listando préstamos pendientes...");
+                try {
+                        PrestamoRepository repository = new PrestamoRepository();
+                        List<PrestamoDetalle> pendientes = repository.listarPrestamosPendientes();
+                        String json = new Gson().toJson(pendientes);
+                        return request.createResponseBuilder(HttpStatus.OK)
+                                        .header("Content-Type", "application/json")
+                                        .body(json).build();
+                } catch (Exception e) {
+                        context.getLogger().severe("Error al listar pendientes: " + e.getMessage());
+                        String errorJson = "{\"error\":\"Error al listar pendientes\",\"detalle\":\""
+                                        + e.getMessage().replace("\"", "'") + "\"}";
+                        return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .header("Content-Type", "application/json")
+                                        .body(errorJson).build();
+                }
         }
-    }
 
-    // POST /prestamos inserta un nuevo préstamo
-    @FunctionName("InsertarPrestamo")
-    public HttpResponseMessage insertarPrestamo(
-            @HttpTrigger(name = "req", methods = {HttpMethod.POST},
-                    route = "prestamos", authLevel = AuthorizationLevel.ANONYMOUS)
-            HttpRequestMessage<Optional<String>> request,
-            final ExecutionContext context) {
+        // POST /prestamos inserta un nuevo préstamo
+        @FunctionName("InsertarPrestamo")
+        public HttpResponseMessage insertarPrestamo(
+                        @HttpTrigger(name = "req", methods = {
+                                        HttpMethod.POST }, route = "prestamos", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+                        final ExecutionContext context) {
 
-        context.getLogger().info("Insertando nuevo préstamo...");
-        try {
-            Prestamo prestamo = new Gson().fromJson(request.getBody().orElse("{}"), Prestamo.class);
+                context.getLogger().info("Insertando nuevo préstamo...");
+                try {
+                        Prestamo prestamo = new Gson().fromJson(request.getBody().orElse("{}"), Prestamo.class);
 
-            // Valido que vengan los ids necesarios
-            if (prestamo.getUsuarioId() == 0) {
-                return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-                        .header("Content-Type", "application/json")
-                        .body("{\"error\":\"El usuarioId es obligatorio\"}").build();
-            }
-            if (prestamo.getLibroId() == 0) {
-                return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-                        .header("Content-Type", "application/json")
-                        .body("{\"error\":\"El libroId es obligatorio\"}").build();
-            }
-            if (prestamo.getClienteId() == 0) {
-                return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-                        .header("Content-Type", "application/json")
-                        .body("{\"error\":\"El clienteId es obligatorio\"}").build();
-            }
+                        // Valido que vengan los ids necesarios
+                        if (prestamo.getUsuarioId() == 0) {
+                                return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                                                .header("Content-Type", "application/json")
+                                                .body("{\"error\":\"El usuarioId es obligatorio\"}").build();
+                        }
+                        if (prestamo.getLibroId() == 0) {
+                                return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                                                .header("Content-Type", "application/json")
+                                                .body("{\"error\":\"El libroId es obligatorio\"}").build();
+                        }
+                        if (prestamo.getClienteId() == 0) {
+                                return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                                                .header("Content-Type", "application/json")
+                                                .body("{\"error\":\"El clienteId es obligatorio\"}").build();
+                        }
 
-            PrestamoRepository repository = new PrestamoRepository();
-            Prestamo nuevo = repository.insertarPrestamo(prestamo);
-            String json = new Gson().toJson(nuevo);
-            return request.createResponseBuilder(HttpStatus.CREATED)
-                    .header("Content-Type", "application/json")
-                    .body(json).build();
-        } catch (IllegalStateException e) {
-    // Error de negocio — libro no disponible → HTTP 409 Conflict
-    context.getLogger().warning("Libro no disponible: " + e.getMessage());
-    String errorJson = "{\"error\":\"" + e.getMessage() + "\"}";
-    return request.createResponseBuilder(HttpStatus.CONFLICT)
-            .header("Content-Type", "application/json")
-            .body(errorJson).build();
+                        PrestamoRepository repository = new PrestamoRepository();
+                        Prestamo nuevo = repository.insertarPrestamo(prestamo);
+                        String json = new Gson().toJson(nuevo);
+                        return request.createResponseBuilder(HttpStatus.CREATED)
+                                        .header("Content-Type", "application/json")
+                                        .body(json).build();
+                } catch (IllegalStateException e) {
+                        // Error de negocio — libro no disponible → HTTP 409 Conflict
+                        context.getLogger().warning("Libro no disponible: " + e.getMessage());
+                        String errorJson = "{\"error\":\"" + e.getMessage() + "\"}";
+                        return request.createResponseBuilder(HttpStatus.CONFLICT)
+                                        .header("Content-Type", "application/json")
+                                        .body(errorJson).build();
 
-} catch (Exception e) {
-            context.getLogger().severe("Error al insertar préstamo: " + e.getMessage());
-            String errorJson = "{\"error\":\"Error al insertar préstamo\",\"detalle\":\""
-                    + e.getMessage().replace("\"", "'") + "\"}";
-            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header("Content-Type", "application/json")
-                    .body(errorJson).build();
+                } catch (Exception e) {
+                        context.getLogger().severe("Error al insertar préstamo: " + e.getMessage());
+                        String errorJson = "{\"error\":\"Error al insertar préstamo\",\"detalle\":\""
+                                        + e.getMessage().replace("\"", "'") + "\"}";
+                        return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .header("Content-Type", "application/json")
+                                        .body(errorJson).build();
+                }
         }
-    }
 
-    // PATCH /prestamos/{id}/devolucion registra la fecha de entrega de hoy
-   @FunctionName("RegistrarDevolucion")
-    public HttpResponseMessage registrarDevolucion(
-            @HttpTrigger(name = "req", methods = {HttpMethod.PATCH},
-                    route = "prestamos/{id:int}/devolucion", authLevel = AuthorizationLevel.ANONYMOUS)
-            HttpRequestMessage<Optional<String>> request,
-            @BindingName("id") int id,
-            final ExecutionContext context) {
+        // PATCH /prestamos/{id}/devolucion registra la fecha de entrega de hoy
+        @FunctionName("RegistrarDevolucion")
+        public HttpResponseMessage registrarDevolucion(
+                        @HttpTrigger(name = "req", methods = {
+                                        HttpMethod.PATCH }, route = "prestamos/{id:int}/devolucion", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+                        @BindingName("id") int id,
+                        final ExecutionContext context) {
 
-        context.getLogger().info("Registrando devolución del préstamo id: " + id);
-        try {
-            PrestamoRepository repository = new PrestamoRepository();
-            Prestamo actualizado = repository.registrarDevolucion(id);
+                context.getLogger().info("Registrando devolución del préstamo id: " + id);
+                try {
+                        PrestamoRepository repository = new PrestamoRepository();
+                        Prestamo actualizado = repository.registrarDevolucion(id);
 
-            if (actualizado == null) {
-                return request.createResponseBuilder(HttpStatus.NOT_FOUND)
-                        .header("Content-Type", "application/json")
-                        .body("{\"error\":\"Préstamo no encontrado o ya fue devuelto\",\"id\":" + id + "}")
-                        .build();
-            }
+                        if (actualizado == null) {
+                                return request.createResponseBuilder(HttpStatus.NOT_FOUND)
+                                                .header("Content-Type", "application/json")
+                                                .body("{\"error\":\"Préstamo no encontrado o ya fue devuelto\",\"id\":"
+                                                                + id + "}")
+                                                .build();
+                        }
 
-            String json = new Gson().toJson(actualizado);
-            return request.createResponseBuilder(HttpStatus.OK)
-                    .header("Content-Type", "application/json")
-                    .body(json).build();
-        } catch (Exception e) {
-            context.getLogger().severe("Error al registrar devolución: " + e.getMessage());
-            String errorJson = "{\"error\":\"Error al registrar devolución\",\"detalle\":\""
-                    + e.getMessage().replace("\"", "'") + "\"}";
-            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header("Content-Type", "application/json")
-                    .body(errorJson).build();
+                        String json = new Gson().toJson(actualizado);
+                        return request.createResponseBuilder(HttpStatus.OK)
+                                        .header("Content-Type", "application/json")
+                                        .body(json).build();
+                } catch (Exception e) {
+                        context.getLogger().severe("Error al registrar devolución: " + e.getMessage());
+                        String errorJson = "{\"error\":\"Error al registrar devolución\",\"detalle\":\""
+                                        + e.getMessage().replace("\"", "'") + "\"}";
+                        return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .header("Content-Type", "application/json")
+                                        .body(errorJson).build();
+                }
         }
-    }
 
-    // GET /prestamos/libros/{id}/disponibilidad
-@FunctionName("LibroDisponible")
-public HttpResponseMessage libroDisponible(
-        @HttpTrigger(name = "req", methods = {HttpMethod.GET},
-                route = "prestamos/libros/{id:int}/disponibilidad",
-                authLevel = AuthorizationLevel.ANONYMOUS)
-        HttpRequestMessage<Optional<String>> request,
-        @BindingName("id") int id,
-        final ExecutionContext context) {
+        // GET /prestamos/libros/{id}/disponibilidad
+        @FunctionName("LibroDisponible")
+        public HttpResponseMessage libroDisponible(
+                        @HttpTrigger(name = "req", methods = {
+                                        HttpMethod.GET }, route = "prestamos/libros/{id:int}/disponibilidad", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+                        @BindingName("id") int id,
+                        final ExecutionContext context) {
 
-    context.getLogger().info("Consultando disponibilidad del libro id: " + id);
-    try {
-        PrestamoRepository repository = new PrestamoRepository();
-        boolean disponible = repository.libroDisponible(id);
+                context.getLogger().info("Consultando disponibilidad del libro id: " + id);
+                try {
+                        PrestamoRepository repository = new PrestamoRepository();
+                        boolean disponible = repository.libroDisponible(id);
 
-        String json = "{\"libroId\":" + id + ",\"disponible\":" + disponible + "}";
+                        String json = "{\"libroId\":" + id + ",\"disponible\":" + disponible + "}";
 
-        return request.createResponseBuilder(HttpStatus.OK)
-                .header("Content-Type", "application/json")
-                .body(json).build();
+                        return request.createResponseBuilder(HttpStatus.OK)
+                                        .header("Content-Type", "application/json")
+                                        .body(json).build();
 
-    } catch (Exception e) {
-        context.getLogger().severe("Error al consultar disponibilidad: " + e.getMessage());
-        String errorJson = "{\"error\":\"Error al consultar disponibilidad\",\"detalle\":\""
-                + e.getMessage().replace("\"", "'") + "\"}";
-        return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                .header("Content-Type", "application/json")
-                .body(errorJson).build();
-    }
-}
+                } catch (Exception e) {
+                        context.getLogger().severe("Error al consultar disponibilidad: " + e.getMessage());
+                        String errorJson = "{\"error\":\"Error al consultar disponibilidad\",\"detalle\":\""
+                                        + e.getMessage().replace("\"", "'") + "\"}";
+                        return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .header("Content-Type", "application/json")
+                                        .body(errorJson).build();
+                }
+        }
 }

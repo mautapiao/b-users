@@ -14,14 +14,10 @@ import java.util.Optional;
 
 public class Function {
 
-        @FunctionName("test")
+    @FunctionName("test")
     public HttpResponseMessage run(
-            @HttpTrigger(
-                name = "req",
-                methods = {HttpMethod.GET, HttpMethod.POST},
-                authLevel = AuthorizationLevel.ANONYMOUS
-            )
-            HttpRequestMessage<Optional<String>> request,
+            @HttpTrigger(name = "req", methods = { HttpMethod.GET,
+                    HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
 
         context.getLogger().info("Function ejecutada correctamente");
@@ -31,25 +27,21 @@ public class Function {
                 .build();
     }
 
-
     @FunctionName("HttpExample")
     public HttpResponseMessage run_(
-            @HttpTrigger(
-                name = "req",
-                methods = {HttpMethod.GET},
-                authLevel = AuthorizationLevel.ANONYMOUS)
-                HttpRequestMessage<Optional<String>> request,
+            @HttpTrigger(name = "req", methods = {
+                    HttpMethod.GET }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
 
-if (System.getenv("ORACLE_URL") == null) {
-    return request.createResponseBuilder(HttpStatus.OK)
-            .body("Modo test OK")
-            .build();
-}
+        if (System.getenv("ORACLE_URL") == null) {
+            return request.createResponseBuilder(HttpStatus.OK)
+                    .body("Modo test OK")
+                    .build();
+        }
 
         try (Connection conn = OracleConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) TOTAL FROM B6_USUARIOS");
-             ResultSet rs = stmt.executeQuery()) {
+                PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) TOTAL FROM B6_USUARIOS");
+                ResultSet rs = stmt.executeQuery()) {
 
             int total = 0;
             if (rs.next()) {

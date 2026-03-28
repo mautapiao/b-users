@@ -1,4 +1,5 @@
 package com.function.model;
+
 public class Cliente {
     private int id;
     private int rut;
@@ -23,11 +24,11 @@ public class Cliente {
         this.id = id;
     }
 
-    public int getRut() {  // ❌ era String, debe ser int para coincidir con el atributo
+    public int getRut() { 
         return rut;
     }
 
-    public void setRut(int rut) {  // ❌ era String, debe ser int
+    public void setRut(int rut) { 
         this.rut = rut;
     }
 
@@ -39,11 +40,11 @@ public class Cliente {
         this.dv = dv;
     }
 
-    public String getNombre() {  
+    public String getNombre() {
         return nombre;
     }
 
-    public void setNombre(String nombre) { 
+    public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 }

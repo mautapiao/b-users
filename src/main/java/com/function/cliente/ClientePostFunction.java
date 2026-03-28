@@ -17,15 +17,11 @@ import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 public class ClientePostFunction {
-  
-@FunctionName("CreateCliente")
+
+    @FunctionName("CreateCliente")
     public HttpResponseMessage createUsuario(
-            @HttpTrigger(
-                name = "req",
-                methods = {HttpMethod.POST},
-                route = "clientes",
-                authLevel = AuthorizationLevel.ANONYMOUS)
-                HttpRequestMessage<Optional<String>> request,
+            @HttpTrigger(name = "req", methods = {
+                    HttpMethod.POST }, route = "clientes", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
 
         // informo que voy a crear un nuevo usuario
@@ -37,7 +33,7 @@ public class ClientePostFunction {
 
             // valido si el body viene vacío
             if (body.isBlank()) {
-                //  preparo un JSON indicando que faltan datos
+                // preparo un JSON indicando que faltan datos
                 String errorJson = "{\"error\":\"El body de la petición está vacío\"}";
 
                 // devuelvo una respuesta 400 porque faltó enviar información
@@ -50,10 +46,9 @@ public class ClientePostFunction {
             // preparo Gson para convertir el JSON recibido a un objeto Usuario
             Gson gson = new Gson();
 
-            
             Cliente cliente = gson.fromJson(body, Cliente.class);
 
-            //  valido si el objeto no se pudo construir correctamente
+            // valido si el objeto no se pudo construir correctamente
             if (cliente == null) {
                 String errorJson = "{\"error\":\"No se pudo leer el registro enviado\"}";
 
@@ -64,33 +59,33 @@ public class ClientePostFunction {
             }
 
             // Valido que el rut venga informado
-if (cliente.getRut() == 0) {
-    String errorJson = "{\"error\":\"El rut es obligatorio\"}";
-    return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .header("Content-Type", "application/json")
-            .body(errorJson)
-            .build();
-}
+            if (cliente.getRut() == 0) {
+                String errorJson = "{\"error\":\"El rut es obligatorio\"}";
+                return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                        .header("Content-Type", "application/json")
+                        .body(errorJson)
+                        .build();
+            }
 
-// Valido que el dv venga informado
-if (cliente.getDv() == null || cliente.getDv().isBlank()) {
-    String errorJson = "{\"error\":\"El dv es obligatorio\"}";
-    return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .header("Content-Type", "application/json")
-            .body(errorJson)
-            .build();
-}
+            // Valido que el dv venga informado
+            if (cliente.getDv() == null || cliente.getDv().isBlank()) {
+                String errorJson = "{\"error\":\"El dv es obligatorio\"}";
+                return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                        .header("Content-Type", "application/json")
+                        .body(errorJson)
+                        .build();
+            }
 
-// Valido que el nombre venga informado
-if (cliente.getNombre() == null || cliente.getNombre().isBlank()) {
-    String errorJson = "{\"error\":\"El nombre es obligatorio\"}";
-    return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .header("Content-Type", "application/json")
-            .body(errorJson)
-            .build();
-}
+            // Valido que el nombre venga informado
+            if (cliente.getNombre() == null || cliente.getNombre().isBlank()) {
+                String errorJson = "{\"error\":\"El nombre es obligatorio\"}";
+                return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                        .header("Content-Type", "application/json")
+                        .body(errorJson)
+                        .build();
+            }
 
-            //  creo el repositorio para guardar el nuevo usuario
+            // creo el repositorio para guardar el nuevo usuario
             ClienteRepository repository = new ClienteRepository();
 
             // Aquí inserto el usuario en la base de datos
@@ -106,7 +101,7 @@ if (cliente.getNombre() == null || cliente.getNombre().isBlank()) {
                     .build();
 
         } catch (JsonSyntaxException e) {
-            //  controlo el caso en que el JSON esté mal escrito
+            // controlo el caso en que el JSON esté mal escrito
             context.getLogger().severe("JSON inválido: " + e.getMessage());
 
             String errorJson = "{\"error\":\"El JSON enviado no es válido\"}";

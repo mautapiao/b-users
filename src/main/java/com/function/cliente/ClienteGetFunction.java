@@ -17,7 +17,7 @@ import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 public class ClienteGetFunction {
- @FunctionName("GetClientes")
+  @FunctionName("GetClientes")
   public HttpResponseMessage getClientes(
       @HttpTrigger(name = "req", methods = {
           HttpMethod.GET }, route = "clientes", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
@@ -36,7 +36,7 @@ public class ClienteGetFunction {
       // preparo gson para convertir la lista a JSON
       Gson gson = new Gson();
 
-      // convierto la lista  a formato JSON
+      // convierto la lista a formato JSON
       String json = gson.toJson(clientes);
 
       // devuelvo una respuesta 200 con la lista de registros en JSON
@@ -46,10 +46,10 @@ public class ClienteGetFunction {
           .build();
 
     } catch (Exception e) {
-      //  registro el error para revisar qué ocurrió
+      // registro el error para revisar qué ocurrió
       context.getLogger().severe("Error al obtener registros: " + e.getMessage());
 
-      //  construyo un JSON con el detalle del error
+      // construyo un JSON con el detalle del error
       String errorJson = "{\"error\":\"Error al obtener registros\",\"detalle\":\""
           + e.getMessage().replace("\"", "'") + "\"}";
 
@@ -75,7 +75,7 @@ public class ClienteGetFunction {
       // creo el repositorio para consultar la base de datos
       ClienteRepository repository = new ClienteRepository();
 
-      //  busco por su id
+      // busco por su id
       Cliente cliente = repository.buscarPorId(id);
 
       // preparo Gson para convertir objetos Java a JSON

@@ -14,58 +14,54 @@ import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 public class LibroDeleteFunction {
-  
-@FunctionName("DeleteLibro")
-public HttpResponseMessage deleteUsuario(
-        @HttpTrigger(
-            name = "req",
-            methods = {HttpMethod.DELETE},
-            route = "libros/{id:int}",
-            authLevel = AuthorizationLevel.ANONYMOUS)
-            HttpRequestMessage<Optional<String>> request,
-        @BindingName("id") int id,
-        final ExecutionContext context) {
 
-    // Aquí informo que voy a eliminar un libro por su id
-    context.getLogger().info("Eliminando libro  con id: " + id);
+    @FunctionName("DeleteLibro")
+    public HttpResponseMessage deleteUsuario(
+            @HttpTrigger(name = "req", methods = {
+                    HttpMethod.DELETE }, route = "libros/{id:int}", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+            @BindingName("id") int id,
+            final ExecutionContext context) {
 
-    try {
-        // aquí creo el repositorio para eliminar el registro
-        LibroRepository repository = new LibroRepository();
+        // Aquí informo que voy a eliminar un libro por su id
+        context.getLogger().info("Eliminando libro  con id: " + id);
 
-        // aquí intento eliminar el libro usando el id de la URL
-        boolean eliminado = repository.eliminarLibro(id);
+        try {
+            // aquí creo el repositorio para eliminar el registro
+            LibroRepository repository = new LibroRepository();
 
-        // aquí valido si no existía un lirbo con ese id
-        if (!eliminado) {
-            String notFoundJson = "{\"error\":\"Libro no encontrado\",\"id\":" + id + "}";
+            // aquí intento eliminar el libro usando el id de la URL
+            boolean eliminado = repository.eliminarLibro(id);
 
-            return request.createResponseBuilder(HttpStatus.NOT_FOUND)
+            // aquí valido si no existía un lirbo con ese id
+            if (!eliminado) {
+                String notFoundJson = "{\"error\":\"Libro no encontrado\",\"id\":" + id + "}";
+
+                return request.createResponseBuilder(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json")
+                        .body(notFoundJson)
+                        .build();
+            }
+
+            // aquí preparo un JSON confirmando la eliminación
+            String okJson = "{\"mensaje\":\"Libro eliminado correctamente\",\"id\":" + id + "}";
+
+            // aquí devuelvo una respuesta exitosa indicando que el libro fue eliminado
+            return request.createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "application/json")
-                    .body(notFoundJson)
+                    .body(okJson)
+                    .build();
+
+        } catch (Exception e) {
+            // aquí controlo cualquier error al eliminar
+            context.getLogger().severe("Error al eliminar libro: " + e.getMessage());
+
+            String errorJson = "{\"error\":\"Error interno al eliminar libro\",\"detalle\":\""
+                    + e.getMessage().replace("\"", "'") + "\"}";
+
+            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Content-Type", "application/json")
+                    .body(errorJson)
                     .build();
         }
-
-        // aquí preparo un JSON confirmando la eliminación
-        String okJson = "{\"mensaje\":\"Libro eliminado correctamente\",\"id\":" + id + "}";
-
-        // aquí devuelvo una respuesta exitosa indicando que el libro fue eliminado
-        return request.createResponseBuilder(HttpStatus.OK)
-                .header("Content-Type", "application/json")
-                .body(okJson)
-                .build();
-
-    } catch (Exception e) {
-        // aquí controlo cualquier error al eliminar 
-        context.getLogger().severe("Error al eliminar libro: " + e.getMessage());
-
-        String errorJson = "{\"error\":\"Error interno al eliminar libro\",\"detalle\":\""
-                + e.getMessage().replace("\"", "'") + "\"}";
-
-        return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                .header("Content-Type", "application/json")
-                .body(errorJson)
-                .build();
     }
-}
 }

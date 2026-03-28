@@ -46,10 +46,10 @@ public class UsuarioGetFunction {
           .build();
 
     } catch (Exception e) {
-      //  registro el error para revisar qué ocurrió
+      // registro el error para revisar qué ocurrió
       context.getLogger().severe("Error al obtener usuarios: " + e.getMessage());
 
-      //  construyo un JSON con el detalle del error
+      // construyo un JSON con el detalle del error
       String errorJson = "{\"error\":\"Error al obtener usuarios\",\"detalle\":\""
           + e.getMessage().replace("\"", "'") + "\"}";
 
@@ -75,7 +75,7 @@ public class UsuarioGetFunction {
       // creo el repositorio para consultar la base de datos
       UsuarioRepository repository = new UsuarioRepository();
 
-      //  busco un usuario por su id
+      // busco un usuario por su id
       Usuario usuario = repository.buscarPorId(id);
 
       // preparo Gson para convertir objetos Java a JSON

@@ -17,15 +17,11 @@ import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 public class LibroPostFunction {
-  
-@FunctionName("CreateLibro")
+
+    @FunctionName("CreateLibro")
     public HttpResponseMessage createUsuario(
-            @HttpTrigger(
-                name = "req",
-                methods = {HttpMethod.POST},
-                route = "libros",
-                authLevel = AuthorizationLevel.ANONYMOUS)
-                HttpRequestMessage<Optional<String>> request,
+            @HttpTrigger(name = "req", methods = {
+                    HttpMethod.POST }, route = "libros", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
 
         // Aquí informo que voy a crear un nuevo usuario

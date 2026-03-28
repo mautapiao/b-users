@@ -17,7 +17,7 @@ import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 public class LibroGetFunction {
- @FunctionName("GetLibros")
+  @FunctionName("GetLibros")
   public HttpResponseMessage getLibros(
       @HttpTrigger(name = "req", methods = {
           HttpMethod.GET }, route = "libros", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
@@ -46,10 +46,10 @@ public class LibroGetFunction {
           .build();
 
     } catch (Exception e) {
-      //  registro el error para revisar qué ocurrió
+      // registro el error para revisar qué ocurrió
       context.getLogger().severe("Error al obtener Libros: " + e.getMessage());
 
-      //  construyo un JSON con el detalle del error
+      // construyo un JSON con el detalle del error
       String errorJson = "{\"error\":\"Error al obtener Libros\",\"detalle\":\""
           + e.getMessage().replace("\"", "'") + "\"}";
 
@@ -75,7 +75,7 @@ public class LibroGetFunction {
       // creo el repositorio para consultar la base de datos
       LibroRepository repository = new LibroRepository();
 
-      //  busco un Libro por su id
+      // busco un Libro por su id
       Libro libro = repository.buscarPorId(id);
 
       // preparo Gson para convertir objetos Java a JSON

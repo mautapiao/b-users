@@ -8,5 +8,5 @@ target/
 .idea/
 *.iml
 
-# Mac
+# Mac.
 .DS_Store

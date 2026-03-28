@@ -12,7 +12,8 @@ import com.function.model.PrestamoDetalle;
 
 public class PrestamoRepository {
 
-    // Listo todos los préstamos con libro, autor y cliente (todos, incluso devueltos)
+    // Listo todos los préstamos con libro, autor y cliente (todos, incluso
+    // devueltos)
     public List<PrestamoDetalle> listarPrestamos() throws Exception {
         List<PrestamoDetalle> lista = new ArrayList<>();
 
@@ -32,8 +33,8 @@ public class PrestamoRepository {
                 """;
 
         try (Connection conn = OracleConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 PrestamoDetalle p = new PrestamoDetalle();
@@ -67,8 +68,8 @@ public class PrestamoRepository {
                 """;
 
         try (Connection conn = OracleConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 PrestamoDetalle p = new PrestamoDetalle();
@@ -96,7 +97,7 @@ public class PrestamoRepository {
                 """;
 
         try (Connection conn = OracleConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
@@ -119,11 +120,10 @@ public class PrestamoRepository {
     // Inserto un nuevo préstamo con fecha de hoy y sin fecha de entrega
     public Prestamo insertarPrestamo(Prestamo prestamo) throws Exception {
 
-
         // verifico disponibilidad ANTES de insertar
-    if (!libroDisponible(prestamo.getLibroId())) {
-        throw new IllegalStateException("El libro con id " + prestamo.getLibroId() + " no está disponible");
-    }
+        if (!libroDisponible(prestamo.getLibroId())) {
+            throw new IllegalStateException("El libro con id " + prestamo.getLibroId() + " no está disponible");
+        }
 
         String sql = """
                 INSERT INTO B6_PRESTAMOS
@@ -133,8 +133,8 @@ public class PrestamoRepository {
                 """;
 
         try (Connection conn = OracleConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql,
-                     new String[]{"ID"})) { // Aquí pido que Oracle me devuelva el ID generado
+                PreparedStatement stmt = conn.prepareStatement(sql,
+                        new String[] { "ID" })) { // Aquí pido que Oracle me devuelva el ID generado
 
             stmt.setInt(1, prestamo.getUsuarioId());
             stmt.setInt(2, prestamo.getLibroId());
@@ -157,7 +157,7 @@ public class PrestamoRepository {
         String sql = "UPDATE B6_PRESTAMOS SET FECHA_ENTREGA = SYSDATE WHERE ID = ? AND FECHA_ENTREGA IS NULL";
 
         try (Connection conn = OracleConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             int filasActualizadas = stmt.executeUpdate();
@@ -171,28 +171,28 @@ public class PrestamoRepository {
         return buscarPorId(id);
     }
 
+    // verifico si un libro está disponible: disponible = todos sus préstamos tienen
+    // fecha_entrega
+    public boolean libroDisponible(int libroId) throws Exception {
+        String sql = """
+                SELECT COUNT(*) AS PENDIENTES
+                  FROM B6_PRESTAMOS
+                 WHERE B6_LIBROS_ID = ?
+                   AND FECHA_ENTREGA IS NULL
+                """;
 
-    // verifico si un libro está disponible: disponible = todos sus préstamos tienen fecha_entrega
-public boolean libroDisponible(int libroId) throws Exception {
-    String sql = """
-            SELECT COUNT(*) AS PENDIENTES
-              FROM B6_PRESTAMOS
-             WHERE B6_LIBROS_ID = ?
-               AND FECHA_ENTREGA IS NULL
-            """;
+        try (Connection conn = OracleConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-    try (Connection conn = OracleConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, libroId);
 
-        stmt.setInt(1, libroId);
-
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("PENDIENTES") == 0; // true = disponible, false = prestado
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("PENDIENTES") == 0; // true = disponible, false = prestado
+                }
             }
         }
+        return true; // si no tiene préstamos, está disponible
     }
-    return true; // si no tiene préstamos, está disponible
-}
 
 }
