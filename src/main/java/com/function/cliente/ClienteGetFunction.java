@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.function.model.Cliente;
-import com.function.model.Libro;
 import com.function.repository.ClienteRepository;
-import com.function.repository.LibroRepository;
 import com.google.gson.Gson;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpMethod;
@@ -19,7 +17,7 @@ import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 public class ClienteGetFunction {
-  @FunctionName("GetClientes")
+ @FunctionName("GetClientes")
   public HttpResponseMessage getClientes(
       @HttpTrigger(name = "req", methods = {
           HttpMethod.GET }, route = "clientes", authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,

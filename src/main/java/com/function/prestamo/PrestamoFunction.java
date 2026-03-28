@@ -115,7 +115,7 @@ public class PrestamoFunction {
     }
 
     // PATCH /prestamos/{id}/devolucion → registra la fecha de entrega de hoy
-    @FunctionName("RegistrarDevolucion")
+   @FunctionName("RegistrarDevolucion")
     public HttpResponseMessage registrarDevolucion(
             @HttpTrigger(name = "req", methods = {HttpMethod.PATCH},
                     route = "prestamos/{id:int}/devolucion", authLevel = AuthorizationLevel.ANONYMOUS)

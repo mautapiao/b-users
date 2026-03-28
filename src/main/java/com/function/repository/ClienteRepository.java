@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.function.OracleConnection;
 import com.function.model.Cliente;
-import com.function.model.Libro;
 
 public class ClienteRepository {
 

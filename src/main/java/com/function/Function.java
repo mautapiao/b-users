@@ -14,8 +14,26 @@ import java.util.Optional;
 
 public class Function {
 
-    @FunctionName("HttpExample")
+        @FunctionName("test")
     public HttpResponseMessage run(
+            @HttpTrigger(
+                name = "req",
+                methods = {HttpMethod.GET, HttpMethod.POST},
+                authLevel = AuthorizationLevel.ANONYMOUS
+            )
+            HttpRequestMessage<Optional<String>> request,
+            final ExecutionContext context) {
+
+        context.getLogger().info("Function ejecutada correctamente");
+
+        return request.createResponseBuilder(HttpStatus.OK)
+                .body("OK FUNCIONANDO 🚀")
+                .build();
+    }
+
+
+    @FunctionName("HttpExample")
+    public HttpResponseMessage run_(
             @HttpTrigger(
                 name = "req",
                 methods = {HttpMethod.GET},

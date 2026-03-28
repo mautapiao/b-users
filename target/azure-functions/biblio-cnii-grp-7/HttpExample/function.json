@@ -1,0 +1,15 @@
+{
+  "scriptFile" : "../b-users-1.0-SNAPSHOT.jar",
+  "entryPoint" : "com.function.Function.run_",
+  "bindings" : [ {
+    "type" : "httpTrigger",
+    "direction" : "in",
+    "name" : "req",
+    "methods" : [ "GET" ],
+    "authLevel" : "ANONYMOUS"
+  }, {
+    "type" : "http",
+    "direction" : "out",
+    "name" : "$return"
+  } ]
+}
