@@ -104,7 +104,15 @@ public class PrestamoFunction {
             return request.createResponseBuilder(HttpStatus.CREATED)
                     .header("Content-Type", "application/json")
                     .body(json).build();
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
+    // Error de negocio — libro no disponible → HTTP 409 Conflict
+    context.getLogger().warning("Libro no disponible: " + e.getMessage());
+    String errorJson = "{\"error\":\"" + e.getMessage() + "\"}";
+    return request.createResponseBuilder(HttpStatus.CONFLICT)
+            .header("Content-Type", "application/json")
+            .body(errorJson).build();
+
+} catch (Exception e) {
             context.getLogger().severe("Error al insertar préstamo: " + e.getMessage());
             String errorJson = "{\"error\":\"Error al insertar préstamo\",\"detalle\":\""
                     + e.getMessage().replace("\"", "'") + "\"}";
@@ -114,7 +122,7 @@ public class PrestamoFunction {
         }
     }
 
-    // PATCH /prestamos/{id}/devolucion → registra la fecha de entrega de hoy
+    // PATCH /prestamos/{id}/devolucion registra la fecha de entrega de hoy
    @FunctionName("RegistrarDevolucion")
     public HttpResponseMessage registrarDevolucion(
             @HttpTrigger(name = "req", methods = {HttpMethod.PATCH},
@@ -148,4 +156,35 @@ public class PrestamoFunction {
                     .body(errorJson).build();
         }
     }
+
+    // GET /prestamos/libros/{id}/disponibilidad
+@FunctionName("LibroDisponible")
+public HttpResponseMessage libroDisponible(
+        @HttpTrigger(name = "req", methods = {HttpMethod.GET},
+                route = "prestamos/libros/{id:int}/disponibilidad",
+                authLevel = AuthorizationLevel.ANONYMOUS)
+        HttpRequestMessage<Optional<String>> request,
+        @BindingName("id") int id,
+        final ExecutionContext context) {
+
+    context.getLogger().info("Consultando disponibilidad del libro id: " + id);
+    try {
+        PrestamoRepository repository = new PrestamoRepository();
+        boolean disponible = repository.libroDisponible(id);
+
+        String json = "{\"libroId\":" + id + ",\"disponible\":" + disponible + "}";
+
+        return request.createResponseBuilder(HttpStatus.OK)
+                .header("Content-Type", "application/json")
+                .body(json).build();
+
+    } catch (Exception e) {
+        context.getLogger().severe("Error al consultar disponibilidad: " + e.getMessage());
+        String errorJson = "{\"error\":\"Error al consultar disponibilidad\",\"detalle\":\""
+                + e.getMessage().replace("\"", "'") + "\"}";
+        return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                .header("Content-Type", "application/json")
+                .body(errorJson).build();
+    }
+}
 }

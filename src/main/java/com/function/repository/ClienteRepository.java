@@ -94,7 +94,7 @@ public class ClienteRepository {
 
     public Cliente insertarCliente(Cliente cliente) throws Exception {
 
-        String sql = "INSERT INTO B6_CLIENTES (RUT,DV, NOMBRE) VALUES ( ?, ?,?)";
+        String sql = "INSERT INTO B6_CLIENTES (RUT,DV,NOMBRE) VALUES (?,?,?)";
 
         try (Connection conn = OracleConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -102,14 +102,20 @@ public class ClienteRepository {
             // aquí envío los datos delcliente  al INSERT
             stmt.setInt(1, cliente.getRut());
             stmt.setString(2, cliente.getDv());
-            stmt.setString(2, cliente.getNombre());
+            stmt.setString(3, cliente.getNombre());
             // aquí ejecuto el INSERT en Oracle
             stmt.executeUpdate();
         }
 
+
         // aquí vuelvo a buscar elregistro  para devolverlo con su id
-        return buscarPorId(cliente.getId());
+        String rutCompleto = cliente.getRut() + "-" + cliente.getDv();
+
+        return buscarPorRut(rutCompleto);
     }
+
+
+
 
     public Cliente actualizarCliente(int id, Cliente cliente) throws Exception {
     

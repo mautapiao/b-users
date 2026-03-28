@@ -49,6 +49,8 @@ public class ClientePostFunction {
 
             // preparo Gson para convertir el JSON recibido a un objeto Usuario
             Gson gson = new Gson();
+
+            
             Cliente cliente = gson.fromJson(body, Cliente.class);
 
             //  valido si el objeto no se pudo construir correctamente

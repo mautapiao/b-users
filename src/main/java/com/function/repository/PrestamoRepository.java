@@ -118,6 +118,13 @@ public class PrestamoRepository {
 
     // Inserto un nuevo préstamo con fecha de hoy y sin fecha de entrega
     public Prestamo insertarPrestamo(Prestamo prestamo) throws Exception {
+
+
+        // verifico disponibilidad ANTES de insertar
+    if (!libroDisponible(prestamo.getLibroId())) {
+        throw new IllegalStateException("El libro con id " + prestamo.getLibroId() + " no está disponible");
+    }
+
         String sql = """
                 INSERT INTO B6_PRESTAMOS
                     (FECHA_PRESTAMO, FECHA_ENTREGA, B6_USUARIOS_ID, B6_LIBROS_ID, B6_CLIENTES_ID)
@@ -163,4 +170,29 @@ public class PrestamoRepository {
         // Aquí devuelvo el préstamo ya con la fecha de entrega registrada
         return buscarPorId(id);
     }
+
+
+    // verifico si un libro está disponible: disponible = todos sus préstamos tienen fecha_entrega
+public boolean libroDisponible(int libroId) throws Exception {
+    String sql = """
+            SELECT COUNT(*) AS PENDIENTES
+              FROM B6_PRESTAMOS
+             WHERE B6_LIBROS_ID = ?
+               AND FECHA_ENTREGA IS NULL
+            """;
+
+    try (Connection conn = OracleConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, libroId);
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("PENDIENTES") == 0; // true = disponible, false = prestado
+            }
+        }
+    }
+    return true; // si no tiene préstamos, está disponible
+}
+
 }

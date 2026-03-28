@@ -1,0 +1,16 @@
+{
+  "scriptFile" : "../b-users-1.0-SNAPSHOT.jar",
+  "entryPoint" : "com.function.prestamo.PrestamoFunction.libroDisponible",
+  "bindings" : [ {
+    "type" : "httpTrigger",
+    "direction" : "in",
+    "name" : "req",
+    "route" : "prestamos/libros/{id:int}/disponibilidad",
+    "methods" : [ "GET" ],
+    "authLevel" : "ANONYMOUS"
+  }, {
+    "type" : "http",
+    "direction" : "out",
+    "name" : "$return"
+  } ]
+}
