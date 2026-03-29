@@ -3,8 +3,10 @@ package com.function.repository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.function.OracleConnection;
 import com.function.model.Prestamo;
@@ -117,8 +119,46 @@ public class PrestamoRepository {
         return null;
     }
 
+    public Optional<Prestamo> insertarPrestamo(Prestamo prestamo) throws SQLException {
+
+    // Verifico disponibilidad ANTES de insertar — resultado de negocio, no excepción
+    if (!libroDisponible(prestamo.getLibroId())) {
+        return Optional.empty();
+    }
+
+    String sql = """
+        INSERT INTO B6_PRESTAMOS
+            (FECHA_PRESTAMO, FECHA_ENTREGA, B6_USUARIOS_ID, B6_LIBROS_ID, B6_CLIENTES_ID)
+        VALUES
+            (SYSDATE, NULL, ?, ?, ?)
+        """;
+
+    try (Connection conn = OracleConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql, new String[]{"ID"})) {
+
+        stmt.setInt(1, prestamo.getUsuarioId());
+        stmt.setInt(2, prestamo.getLibroId());
+        stmt.setInt(3, prestamo.getClienteId());
+        stmt.executeUpdate();
+
+        try (ResultSet rs = stmt.getGeneratedKeys()) {
+    if (rs.next()) {
+        int idGenerado = rs.getInt(1);
+        try {
+            return Optional.ofNullable(buscarPorId(idGenerado));
+        } catch (Exception e) {
+            // El INSERT fue exitoso pero no pudo recuperar el registro
+            throw new SQLException("Préstamo insertado pero no se pudo recuperar. ID: " + idGenerado, e);
+        }
+    }
+}
+    }
+
+    return Optional.empty();
+}
+
     // Inserto un nuevo préstamo con fecha de hoy y sin fecha de entrega
-    public Prestamo insertarPrestamo(Prestamo prestamo) throws Exception {
+    public Prestamo _insertarPrestamo(Prestamo prestamo) throws Exception {
 
         // verifico disponibilidad ANTES de insertar
         if (!libroDisponible(prestamo.getLibroId())) {
@@ -173,6 +213,7 @@ public class PrestamoRepository {
 
     // verifico si un libro está disponible: disponible = todos sus préstamos tienen
     // fecha_entrega
+    /* 
     public boolean libroDisponible(int libroId) throws Exception {
         String sql = """
                 SELECT COUNT(*) AS PENDIENTES
@@ -194,5 +235,74 @@ public class PrestamoRepository {
         }
         return true; // si no tiene préstamos, está disponible
     }
+   */
+public boolean libroDisponible(int libroId) throws SQLException {
+    
+    String sql = """
+        SELECT 
+            COUNT(*) AS TOTAL_LIBRO,
+            SUM(CASE WHEN p.FECHA_ENTREGA IS NULL THEN 1 ELSE 0 END) AS PRESTAMOS_PENDIENTES
+        FROM B6_LIBROS l
+        LEFT JOIN B6_PRESTAMOS p ON p.B6_LIBROS_ID = l.ID
+        WHERE l.ID = ?
+    """;
+
+    try (Connection conn = OracleConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, libroId);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            // Si no existe el libro, retorna false (no null)
+            if (rs.getInt("TOTAL_LIBRO") == 0) {
+                return false;
+            }
+            // Disponible si no tiene préstamos pendientes
+            return rs.getInt("PRESTAMOS_PENDIENTES") == 0;
+        }
+
+        return false;
+    }
+}
+
+    public Boolean _libroDisponible(int libroId) throws Exception {
+
+    // 1. Verificar existencia
+    String sqlLibro = "SELECT COUNT(*) FROM B6_LIBROS WHERE ID = ?";
+
+    try (Connection conn = OracleConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sqlLibro)) {
+
+        stmt.setInt(1, libroId);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next() && rs.getInt(1) == 0) {
+            return null; // libro no existe
+        }
+    }
+
+    // 2. Verificar préstamos
+    String sqlPrestamo = """
+        SELECT COUNT(*) AS PENDIENTES
+        FROM B6_PRESTAMOS
+        WHERE B6_LIBROS_ID = ?
+        AND FECHA_ENTREGA IS NULL
+    """;
+
+    try (Connection conn = OracleConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sqlPrestamo)) {
+
+        stmt.setInt(1, libroId);
+
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("PENDIENTES") == 0;
+        }
+    }
+
+    return true;
+}
+
 
 }

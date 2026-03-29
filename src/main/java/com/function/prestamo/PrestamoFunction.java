@@ -69,7 +69,65 @@ public class PrestamoFunction {
                 }
         }
 
+        @FunctionName("InsertarPrestamo")
+public HttpResponseMessage insertarPrestamo(
+    @HttpTrigger(name = "req", methods = {
+        HttpMethod.POST }, route = "prestamos", authLevel = AuthorizationLevel.ANONYMOUS)
+    HttpRequestMessage<Optional<String>> request,
+    final ExecutionContext context) {
+
+    context.getLogger().info("Insertando nuevo préstamo...");
+
+    try {
+        Prestamo prestamo = new Gson().fromJson(request.getBody().orElse("{}"), Prestamo.class);
+
+        // Valido que vengan los ids necesarios
+        if (prestamo.getUsuarioId() == 0) {
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                .header("Content-Type", "application/json")
+                .body("{\"error\":\"El usuarioId es obligatorio\"}").build();
+        }
+        if (prestamo.getLibroId() == 0) {
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                .header("Content-Type", "application/json")
+                .body("{\"error\":\"El libroId es obligatorio\"}").build();
+        }
+        if (prestamo.getClienteId() == 0) {
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                .header("Content-Type", "application/json")
+                .body("{\"error\":\"El clienteId es obligatorio\"}").build();
+        }
+
+        PrestamoRepository repository = new PrestamoRepository();
+        Optional<Prestamo> resultado = repository.insertarPrestamo(prestamo);
+
+        // Resultado de negocio válido — libro no disponible no es un error
+        if (resultado.isEmpty()) {
+            return request.createResponseBuilder(HttpStatus.OK)
+                .header("Content-Type", "application/json")
+                .body("{\"disponible\": false, \"mensaje\": \"Libro no disponible o no existe\"}")
+                .build();
+        }
+
+        String json = new Gson().toJson(resultado.get());
+        return request.createResponseBuilder(HttpStatus.CREATED)
+            .header("Content-Type", "application/json")
+            .body(json).build();
+
+    } catch (Exception e) {
+        // Solo errores reales del sistema llegan acá
+        context.getLogger().severe("Error al insertar préstamo: " + e.getMessage());
+        String errorJson = "{\"error\":\"Error al insertar préstamo\",\"detalle\":\""
+            + e.getMessage().replace("\"", "'") + "\"}";
+        return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+            .header("Content-Type", "application/json")
+            .body(errorJson).build();
+    }
+}
+        
+
         // POST /prestamos inserta un nuevo préstamo
+        /* original
         @FunctionName("InsertarPrestamo")
         public HttpResponseMessage insertarPrestamo(
                         @HttpTrigger(name = "req", methods = {
@@ -121,6 +179,7 @@ public class PrestamoFunction {
                 }
         }
 
+        */
         // PATCH /prestamos/{id}/devolucion registra la fecha de entrega de hoy
         @FunctionName("RegistrarDevolucion")
         public HttpResponseMessage registrarDevolucion(
@@ -167,8 +226,14 @@ public class PrestamoFunction {
                 context.getLogger().info("Consultando disponibilidad del libro id: " + id);
                 try {
                         PrestamoRepository repository = new PrestamoRepository();
-                        boolean disponible = repository.libroDisponible(id);
+                        Boolean disponible = repository.libroDisponible(id);
 
+                        if (disponible == null) {
+    return request.createResponseBuilder(HttpStatus.NOT_FOUND)
+        .header("Content-Type", "application/json")
+        .body("{\"error\":\"Libro no encontrado\"}")
+        .build();
+} 
                         String json = "{\"libroId\":" + id + ",\"disponible\":" + disponible + "}";
 
                         return request.createResponseBuilder(HttpStatus.OK)
