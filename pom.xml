@@ -54,6 +54,7 @@
     <version>21.9.0.0</version>
 </dependency>
 
+
         <!-- Test -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -140,10 +141,14 @@
         <resources>
     <resource>
         <directory>src/main/resources</directory>
-        <includes>
+        <!--<includes>
                 <include>wallet/**</include>
-            </includes>
+            </includes>-->
     </resource>
+    
+
+
+
 </resources>
     </build>
 </project>

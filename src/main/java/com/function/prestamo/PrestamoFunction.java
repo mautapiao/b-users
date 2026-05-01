@@ -1,7 +1,11 @@
 package com.function.prestamo;
 
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.function.model.Prestamo;
 import com.function.model.PrestamoDetalle;
@@ -201,6 +205,13 @@ public HttpResponseMessage insertarPrestamo(
                                                 .build();
                         }
 
+
+
+                        if (actualizado != null) {
+
+                        context.getLogger().info("EVENTO: DevolucionCreada - prestamoId: " + id);
+                        }
+                        
                         String json = new Gson().toJson(actualizado);
                         return request.createResponseBuilder(HttpStatus.OK)
                                         .header("Content-Type", "application/json")

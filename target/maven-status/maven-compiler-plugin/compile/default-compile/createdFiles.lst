@@ -3,6 +3,7 @@ com/function/repository/ClienteRepository.class
 com/function/model/Prestamo.class
 com/function/usuario/UsuarioGetFunction.class
 com/function/PreparedStatement.class
+com/function/EnviarCorreoDevolucion.class
 com/function/cliente/ClienteGetFunction.class
 com/function/cliente/ClientePostFunction.class
 com/function/libro/LibroPostFunction.class

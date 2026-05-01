@@ -1,7 +1,8 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsStorage": "",
+     "AzureWebJobsSecretStorageType": "Files",
     "FUNCTIONS_WORKER_RUNTIME": "java",
     "ORACLE_URL": "jdbc:oracle:thin:@vpi3oxvg2qh7qk56_high?TNS_ADMIN=/Users/agrodynamic/Wallet_VPI3OXVG2QH7QK56",
     "ORACLE_USER": "WEBMASTERMTO",
